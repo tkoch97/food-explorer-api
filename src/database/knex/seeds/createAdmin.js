@@ -1,15 +1,13 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> } 
- */
+const { hash } = require("bcryptjs");
+
 exports.seed = async function(knex) {
-  // Deletes ALL existing entries
+  const hashedPassword = await hash("000000", 8);
   await knex('users').del()
   await knex('users').insert([
     {
       name: 'admin',
       email: 'admin@email.com',
-      password: '1234',
+      password: hashedPassword,
       isAdmin: true
     }
   ]);
