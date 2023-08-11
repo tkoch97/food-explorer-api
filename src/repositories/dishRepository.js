@@ -7,8 +7,8 @@ class DishRepository {
     return dish;
   }
 
-  async create({name, description, category, ingredients, price}) {
-    
+  async create(dishData) {
+    const {name, description, category, price, ingredients} = dishData;
     const [ dish_id ] = await knex('dishes').insert({
       name,
       description,
@@ -24,6 +24,17 @@ class DishRepository {
     });
 
     await knex('ingredients').insert(ingredientsInsert);
+  }
+
+  async getDishById(id){
+
+    const dish = await knex("dishes").where({ id }).first();
+    const ingredients = await knex("ingredients").where({dish_id: id}).orderBy("name");
+
+    return {
+      ... dish,
+      ingredients
+    }
   }
 }
 

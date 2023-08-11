@@ -4,5 +4,6 @@ const dishRoutes = Router();
 const dishControllers = new DishControllers();
 
 dishRoutes.post("/:user_id", dishControllers.create);
+dishRoutes.get("/:id", dishControllers.show);
 
 module.exports = dishRoutes;

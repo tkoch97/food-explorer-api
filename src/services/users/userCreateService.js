@@ -10,6 +10,8 @@ class UserCreateService {
 
     const checkUserExist = await this.userRepository.findEmailExist(email);
 
+    console.log(checkUserExist);
+
     if(checkUserExist){
       throw new AppError("Este email já está em uso.");
     }
