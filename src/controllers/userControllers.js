@@ -3,13 +3,13 @@ const UserCreateService = require("../services/users/userCreateService");
 
 class UserControllers {
 
-  async create(request, response) {
-    const {name, email, password} = request.body;
+  async createUser(request, response) {
+    const userData = request.body;
 
     const userRepository = new UserRepository();
     const userCreateService = new UserCreateService(userRepository);
 
-    await userCreateService.execute({name, email, password});
+    await userCreateService.createUser(userData);
 
     return response.status(201).json("Usuário cadastrado com sucesso!");
   }
