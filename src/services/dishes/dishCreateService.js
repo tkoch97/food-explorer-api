@@ -5,13 +5,14 @@ class DishCreateService {
     this.dishRepository = dishRepository;
   }
 
-  async execute(dishData) {
-    const checkDishExist = await this.dishRepository.findNameExist(dishData.name);
-    if(checkDishExist) {
+  async createDish(dishData) {
+    const checkDishExists = await this.dishRepository.findExistingName(dishData.name);
+
+    if(checkDishExists) {
       throw new AppError("Este prato já está cadastrado.");
     }
 
-    const dishCreated = await this.dishRepository.create(dishData)
+    const dishCreated = await this.dishRepository.createNewDish(dishData)
 
     return dishCreated;
   }

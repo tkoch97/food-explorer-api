@@ -5,14 +5,15 @@ class DishShowService {
     this.dishRepository = dishRepository;
   };
 
-  async execute(id) {
+  async fetchDish(id) {
 
     if(!id || id === null) {
       throw new AppError("erro, parâmetro está vazio!")
     }
 
     const result = await this.dishRepository.getDishById(id);
-    const {dish} = result
+    const { dish } = result;
+
     if(!dish) {
       throw new AppError("Nenhuma refeição encontrada.")
     }
