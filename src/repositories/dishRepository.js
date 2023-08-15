@@ -2,6 +2,15 @@ const knex = require("../database");
 
 class DishRepository {
 
+  _generateIngredientsInsert(ingredients, dish_id) {
+    return ingredients.map(ingredient => {
+      return {
+        name: ingredient,
+        dish_id
+      };
+    });
+  }
+
   async findExistingName(name) {
     const dish = await knex('dishes').where('name', name).first();
     return dish;
@@ -16,12 +25,7 @@ class DishRepository {
       price,
     });
 
-    const ingredientsInsert = ingredients.map(ingredient => {
-      return {
-        name: ingredient,
-        dish_id
-      }
-    });
+    const ingredientsInsert = this._generateIngredientsInsert(ingredients, dish_id);
     
     await knex('ingredients').insert(ingredientsInsert);
   }
@@ -40,27 +44,19 @@ class DishRepository {
   async insertNewDataInDishAndIngredients(dishData, id) {
     const {name, description, category, price, ingredients} = dishData;
     const oldIngredients = await knex("ingredients").where({dish_id: id}).orderBy("name");
-
-    console.log(oldIngredients);
     
     await knex('dishes').where('id', id).update({
-      name: name,
-      description: description,
-      category: category,
-      price: price,
+      name,
+      description,
+      category,
+      price,
       updated_at: knex.fn.now()
     });
     
     await knex('ingredients').where('dish_id', id).del()
     
     if(ingredients) {
-      const ingredientsInsert = ingredients.map(ingredient => {
-        return {
-          name: ingredient,
-          dish_id: id
-        }
-      });
-      console.log(ingredientsInsert);
+      const ingredientsInsert = this._generateIngredientsInsert(ingredients, id);
       await knex('ingredients').insert(ingredientsInsert);
     } else {
       await knex('ingredients').insert(oldIngredients);
