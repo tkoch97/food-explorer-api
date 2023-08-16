@@ -62,6 +62,10 @@ class DishRepository {
       await knex('ingredients').insert(oldIngredients);
     }
   }
+
+  async deleteDish(id) {
+    await knex('dishes').where('id', id).del();
+  }
   
 }
 

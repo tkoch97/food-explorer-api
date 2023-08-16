@@ -2,6 +2,7 @@ const DishRepository = require('../repositories/dishRepository');
 const DishCreateService = require('../services/dishes/dishCreateService');
 const DishShowService = require('../services/dishes/dishShowService');
 const DishEditService = require('../services/dishes/dishEditService');
+const DishDeleteService = require('../services/dishes/dishDeleteService');
 
 class DishControllers {
   
@@ -37,6 +38,17 @@ class DishControllers {
     await dishEditService.editDish(dishData, id);
 
     return response.status(201).json(`Prato editado com sucesso!`);
+  }
+  
+  async deleteDish(request, response) {
+    const { id } = request.params;
+    
+    const dishRepository = new DishRepository();
+    const dishDeleteService = new DishDeleteService(dishRepository);
+
+    await dishDeleteService.deleteDish(id);
+    
+    return response.status(201).json(`Prato deletado com sucesso!`);
   }
 
 }
