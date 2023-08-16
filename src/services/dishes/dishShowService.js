@@ -11,14 +11,14 @@ class DishShowService {
       throw new AppError("erro, parâmetro está vazio!")
     }
 
-    const result = await this.dishRepository.getDishById(id);
-    const { dish } = result;
+    const fetchedDish = await this.dishRepository.getDishById(id);
+    const { dish } = fetchedDish;
 
     if(!dish) {
       throw new AppError("Nenhuma refeição encontrada.")
     }
 
-    return result;
+    return fetchedDish;
   }
 }
 

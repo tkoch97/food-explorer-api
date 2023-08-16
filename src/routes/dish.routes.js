@@ -6,5 +6,6 @@ const dishControllers = new DishControllers();
 dishRoutes.post("/:user_id", dishControllers.createNewDish);
 dishRoutes.get("/:id", dishControllers.showDish);
 dishRoutes.put("/:id", dishControllers.editDish);
+dishRoutes.delete("/:id", dishControllers.deleteDish);
 
 module.exports = dishRoutes;
