@@ -66,6 +66,16 @@ class DishRepository {
   async deleteDish(id) {
     await knex('dishes').where('id', id).del();
   }
+
+  async listDishes(dishFilters) {
+    const { name, ingredients } = dishFilters;
+
+    if(name === '' && ingredients === '') {
+      const listAllDishes = await knex("dishes").select();
+
+      return listAllDishes;
+    }
+  }
   
 }
 

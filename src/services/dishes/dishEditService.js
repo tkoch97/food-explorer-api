@@ -15,8 +15,6 @@ class DishEditService {
       throw new AppError("Refeição não encontrada");
     }
 
-    console.log(dishData.ingredients);
-
     const editedDish = await this.dishRepository.insertNewDataInDishAndIngredients(dishData, id);
 
     return editedDish;

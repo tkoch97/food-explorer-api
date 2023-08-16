@@ -3,6 +3,7 @@ const DishCreateService = require('../services/dishes/dishCreateService');
 const DishShowService = require('../services/dishes/dishShowService');
 const DishEditService = require('../services/dishes/dishEditService');
 const DishDeleteService = require('../services/dishes/dishDeleteService');
+const DishListService = require('../services/dishes/dishListService');
 
 class DishControllers {
   
@@ -49,6 +50,17 @@ class DishControllers {
     await dishDeleteService.deleteDish(id);
     
     return response.status(201).json(`Prato deletado com sucesso!`);
+  }
+
+  async listDishes(request, response) {
+    const dishFilters = request.query;
+
+    const dishRepository = new DishRepository();
+    const dishListService = new DishListService(dishRepository);
+
+    const listedDishes = await dishListService.listDishes(dishFilters);
+
+    return response.status(201).json(listedDishes);
   }
 
 }
