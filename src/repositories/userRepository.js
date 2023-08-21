@@ -2,7 +2,7 @@ const knex = require("../database");
 
 class UserRepository {
 
-  async findEmailExist(email) {
+  async findExistingEmail(email) {
     const user = await knex('users').where('email', email).first();
     return user;
   }

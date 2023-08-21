@@ -10,7 +10,7 @@ class UserCreateService {
 
     const {name, email, password} = userData;
 
-    const checkUserExist = await this.userRepository.findEmailExist(email);
+    const checkUserExist = await this.userRepository.findExistingEmail(email);
 
     console.log(checkUserExist);
 
