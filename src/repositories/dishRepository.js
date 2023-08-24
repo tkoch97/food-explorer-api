@@ -1,7 +1,11 @@
 const knex = require("../database");
 const DiskStorage = require("../providers/diskStorage");
+const AppError = require("../utils/AppError");
 
 class DishRepository {
+  constructor() {
+    this.diskStorage = new DiskStorage();
+  }
 
   _generateIngredientsInsert(ingredients, dish_id) {
     return ingredients.map(ingredient => {
@@ -19,11 +23,10 @@ class DishRepository {
 
   async createNewDish(dishData) {
     const dishText = JSON.parse(dishData.body.text);
-    const dishImgFilename = dishData.file.filename;
-    const diskStorage = new DiskStorage();
+    const dishImgFilename = dishData.file ? dishData.file.filename : null;
 
     // Passar a imagem de "tmp" para "uploads"
-    const saveDishImgInUploads = await diskStorage.transferDishImgForUploads(dishImgFilename)
+    const saveDishImgInUploads = await this.diskStorage.transferDishImgForUploads(dishImgFilename)
 
     const [ dish_id ] = await knex('dishes').insert({
       name: dishText.name,
@@ -32,8 +35,6 @@ class DishRepository {
       price: dishText.price,
       image: saveDishImgInUploads
     });
-
-    console.log(dish_id);
 
     const ingredientsInsert = this._generateIngredientsInsert(dishText.ingredients, dish_id);
     
@@ -52,21 +53,46 @@ class DishRepository {
   }
   
   async insertNewDataInDishAndIngredients(dishData, id) {
-    const {name, description, category, price, ingredients} = dishData;
-    const oldIngredients = await knex("ingredients").where({dish_id: id}).orderBy("name");
-    
-    await knex('dishes').where('id', id).update({
-      name,
-      description,
-      category,
-      price,
-      updated_at: knex.fn.now()
-    });
+    const dishText = JSON.parse(dishData.body.text);
+    const dishImgFilename = dishData.file ? dishData.file.filename : null;
+    const oldIngredients = await knex("ingredients").where('dish_id', id).orderBy("name");
+    const atuallDish = await knex("dishes").where('id', id).first();
+
+    // Deletar imagem existente no banco
+    if(dishImgFilename && atuallDish.image) {
+
+      await this.diskStorage.deleteExistingFileInUploads(atuallDish.image);
+
+      // Passar a imagem nova de "tmp" para "uploads"
+      const saveDishImgInUploads = await this.diskStorage.transferDishImgForUploads(dishImgFilename)
+      
+      // Adicionar dados ao banco com a nova imagem
+      await knex('dishes').where('id', id).update({
+        name: dishText.name,
+        description: dishText.description,
+        category: dishText.category,
+        price: dishText.price,
+        image: saveDishImgInUploads,
+        updated_at: knex.fn.now()
+      });
+    } else if (!dishImgFilename) {
+
+      // Adicionar dados ao banco com a imagem atual
+      await knex('dishes').where('id', id).update({
+        name: dishText.name,
+        description: dishText.description,
+        category: dishText.category,
+        price: dishText.price,
+        image: atuallDish.image,
+        updated_at: knex.fn.now()
+      });
+    }
+
     
     await knex('ingredients').where('dish_id', id).del()
     
-    if(ingredients) {
-      const ingredientsInsert = this._generateIngredientsInsert(ingredients, id);
+    if(dishText.ingredients) {
+      const ingredientsInsert = this._generateIngredientsInsert(dishText.ingredients, id);
       await knex('ingredients').insert(ingredientsInsert);
     } else {
       await knex('ingredients').insert(oldIngredients);

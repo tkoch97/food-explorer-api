@@ -30,7 +30,7 @@ class DishControllers {
   }
   
   async editDish(request, response) {
-    const dishData = request.body
+    const dishData = request
     const { id } = request.params
 
     const dishRepository = new DishRepository();
