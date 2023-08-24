@@ -2,7 +2,6 @@ const AppError = require('../utils/AppError');
 
 function restrictAccess(request, response, next) {
   const isAdmin = request.user.role;
-  console.log(isAdmin);
 
   if(isAdmin === 1) {
     next();

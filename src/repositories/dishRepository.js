@@ -1,4 +1,5 @@
 const knex = require("../database");
+const DiskStorage = require("../providers/diskStorage");
 
 class DishRepository {
 
@@ -17,15 +18,24 @@ class DishRepository {
   }
 
   async createNewDish(dishData) {
-    const {name, description, category, price, ingredients} = dishData;
+    const dishText = JSON.parse(dishData.body.text);
+    const dishImgFilename = dishData.file.filename;
+    const diskStorage = new DiskStorage();
+
+    // Passar a imagem de "tmp" para "uploads"
+    const saveDishImgInUploads = await diskStorage.transferDishImgForUploads(dishImgFilename)
+
     const [ dish_id ] = await knex('dishes').insert({
-      name,
-      description,
-      category,
-      price,
+      name: dishText.name,
+      description: dishText.description,
+      category: dishText.category,
+      price: dishText.price,
+      image: saveDishImgInUploads
     });
 
-    const ingredientsInsert = this._generateIngredientsInsert(ingredients, dish_id);
+    console.log(dish_id);
+
+    const ingredientsInsert = this._generateIngredientsInsert(dishText.ingredients, dish_id);
     
     await knex('ingredients').insert(ingredientsInsert);
   }

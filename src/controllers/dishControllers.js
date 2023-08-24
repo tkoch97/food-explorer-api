@@ -8,7 +8,7 @@ const DishListService = require('../services/dishes/dishListService');
 class DishControllers {
   
   async createNewDish(request, response) {
-    const dishData = request.body
+    const dishData = request;
     
     const dishRepository = new DishRepository();
     const dishCreateService = new DishCreateService(dishRepository);
