@@ -53,49 +53,42 @@ class DishRepository {
   }
   
   async insertNewDataInDishAndIngredients(dishData, id) {
-    const dishText = JSON.parse(dishData.body.text);
+    const atuallDish = await knex("dishes").where('id', id).first();
+    const dishText = dishData.body.text ? JSON.parse(dishData.body.text) : atuallDish;
     const dishImgFilename = dishData.file ? dishData.file.filename : null;
     const oldIngredients = await knex("ingredients").where('dish_id', id).orderBy("name");
-    const atuallDish = await knex("dishes").where('id', id).first();
+
+    const updateDishData = {
+      name: dishText.name,
+      description: dishText.description,
+      category: dishText.category,
+      price: dishText.price,
+      updated_at: knex.fn.now()
+    }
 
     // Deletar imagem existente no banco
     if(dishImgFilename && atuallDish.image) {
-
       await this.diskStorage.deleteExistingFileInUploads(atuallDish.image);
-
       // Passar a imagem nova de "tmp" para "uploads"
       const saveDishImgInUploads = await this.diskStorage.transferDishImgForUploads(dishImgFilename)
-      
-      // Adicionar dados ao banco com a nova imagem
-      await knex('dishes').where('id', id).update({
-        name: dishText.name,
-        description: dishText.description,
-        category: dishText.category,
-        price: dishText.price,
-        image: saveDishImgInUploads,
-        updated_at: knex.fn.now()
-      });
-    } else if (!dishImgFilename) {
 
-      // Adicionar dados ao banco com a imagem atual
-      await knex('dishes').where('id', id).update({
-        name: dishText.name,
-        description: dishText.description,
-        category: dishText.category,
-        price: dishText.price,
-        image: atuallDish.image,
-        updated_at: knex.fn.now()
-      });
+      // Inserir nova imagem nos dados da refeição a serem editados
+      updateDishData.image = saveDishImgInUploads
+    } else {
+      // Manter imagem atual nos dados da refeição
+      updateDishData.image = atuallDish.image;
     }
 
-    
+    await knex('dishes').where('id', id).update(updateDishData);
+
+    const ingredientsInsert = dishText.ingredients ? 
+    this._generateIngredientsInsert(dishText.ingredients, id) : 
+    oldIngredients;
+
     await knex('ingredients').where('dish_id', id).del()
     
-    if(dishText.ingredients) {
-      const ingredientsInsert = this._generateIngredientsInsert(dishText.ingredients, id);
+    if(ingredientsInsert.length) {
       await knex('ingredients').insert(ingredientsInsert);
-    } else {
-      await knex('ingredients').insert(oldIngredients);
     }
   }
 
@@ -106,7 +99,7 @@ class DishRepository {
   async listDishes(dishFilters) {
     const { nameOrIngredient } = dishFilters;
 
-    if(nameOrIngredient === '') {
+    if(nameOrIngredient === '' || !nameOrIngredient) {
       const listAllDishes = await knex("dishes").select('image', 'name', 'description', 'price').orderBy("name");
 
       return listAllDishes;
@@ -122,8 +115,12 @@ class DishRepository {
             .whereRaw('dishes.id = ingredients.dish_id')
             .andWhere('ingredients.name', 'like', `%${nameOrIngredient}%`);
       });
-  
-      return listedDishes;
+      
+      if(listedDishes.length === 0){
+        throw new AppError("Nenhum prato encontrado com esse nome ou ingrediente", 403)
+      } else {
+        return listedDishes;
+      }
     }
 
   }
