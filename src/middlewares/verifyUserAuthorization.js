@@ -1,6 +1,6 @@
 const AppError = require('../utils/AppError');
 
-function restrictAccess(request, response, next) {
+function verifyUserAuthorization(request, response, next) {
   const isAdmin = request.user.role;
 
   if(isAdmin === 1) {
@@ -11,4 +11,4 @@ function restrictAccess(request, response, next) {
   
 }
 
-module.exports = restrictAccess;
+module.exports = verifyUserAuthorization;

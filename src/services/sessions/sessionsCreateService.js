@@ -20,17 +20,13 @@ class SessionsCreateService {
         throw new AppError("Email e/ou senha incorretos!", 401)
       }
     }
-    
-    // Para passar mais de um atributo do usuário, tive que criar um objeto JSON e passar no token
-    const userInfo = {
-      id: getUserByEmail.id,
-      role: getUserByEmail.isAdmin
-    }
 
     const { secret, expiresIn } = authConfig.jwt;
 
-    const token = sign({}, secret, {
-      subject: JSON.stringify(userInfo),
+
+    // A role é passada no espaço de payload do token
+    const token = sign({role: getUserByEmail.isAdmin}, secret, {
+      subject: String(getUserByEmail.id),
       expiresIn
     });
 
