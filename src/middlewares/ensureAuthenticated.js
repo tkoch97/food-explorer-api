@@ -15,16 +15,11 @@ function ensureAuthenticated(request, response, next) {
 
   //decodificar e verificar se o token é válido
   try{
-    const decodedToken = verify(token, authConfig.jwt.secret);
-    const subData = JSON.parse(decodedToken.sub);
-
-    //utilizar os dados do token decodificado
-    const user_id = subData.id;
-    const isAdmin = subData.role;
+    const {role, sub: user_id} = verify(token, authConfig.jwt.secret);
 
     request.user = {
       id: Number(user_id),
-      role: Number(isAdmin)
+      role
     }
 
     return next();
