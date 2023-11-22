@@ -10,7 +10,16 @@ class SessionsControllers {
 
     const userData = await sessionsCreateService.initNewSession(sessionData);
 
-    response.status(201).json(userData);
+    response.cookie("token", userData.token, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 15 * 60 * 1000
+    });
+
+    delete userData.getUserByEmail.password
+
+    response.status(201).json(userData.getUserByEmail);
   }
 }
 
