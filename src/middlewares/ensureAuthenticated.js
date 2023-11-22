@@ -4,14 +4,14 @@ const authConfig = require('../configs/auth');
 
 function ensureAuthenticated(request, response, next) {
   // variável que vai receber o token do usuário
-  const authHeader = request.headers.authorization;
+  const authHeader = request.headers;
 
-  if(!authHeader) {
+  if(!authHeader.cookie) {
     throw new AppError("token inexistente", 401);
   }
 
   //pegar o valor contido no authHeader e transformar o cód token em array
-  const [, token] = authHeader.split(" ");
+  const [, token] = authHeader.cookie.split("token=");
 
   //decodificar e verificar se o token é válido
   try{
