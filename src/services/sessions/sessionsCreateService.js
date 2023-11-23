@@ -1,7 +1,5 @@
 const { compare } = require('bcryptjs');
 const AppError = require("../../utils/AppError");
-const authConfig = require("../../configs/auth");
-const { sign } = require("jsonwebtoken");
 
 class SessionsCreateService {
   constructor(sessionsRepository){
@@ -21,16 +19,7 @@ class SessionsCreateService {
       }
     }
 
-    const { secret, expiresIn } = authConfig.jwt;
-
-
-    // A role é passada no espaço de payload do token
-    const token = sign({role: getUserByEmail.isAdmin}, secret, {
-      subject: String(getUserByEmail.id),
-      expiresIn
-    });
-
-    return {getUserByEmail, token}
+    return {getUserByEmail}
   }
 }
 

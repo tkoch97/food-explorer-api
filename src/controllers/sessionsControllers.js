@@ -1,5 +1,7 @@
 const SessionsCreateService = require("../services/sessions/sessionsCreateService");
 const SessionsRepository = require("../repositories/sessionsRepository");
+const authConfig = require("../configs/auth");
+const { sign } = require("jsonwebtoken");
 
 class SessionsControllers {
   async createNewSession(request, response) {
@@ -9,8 +11,15 @@ class SessionsControllers {
     const sessionsCreateService = new SessionsCreateService(sessionsRepository);
 
     const userData = await sessionsCreateService.initNewSession(sessionData);
+    
+    const { secret, expiresIn } = authConfig.jwt;
 
-    response.cookie("token", userData.token, {
+    const token = sign({role: userData.getUserByEmail.isAdmin}, secret, {
+      subject: String(userData.getUserByEmail.id),
+      expiresIn
+    });
+
+    response.cookie("token", token, {
       httpOnly: true,
       sameSite: "None",
       secure: true,
@@ -19,7 +28,7 @@ class SessionsControllers {
 
     delete userData.getUserByEmail.password
 
-    response.status(201).json(userData.getUserByEmail);
+    response.status(201).json(userData);
   }
 }
 
