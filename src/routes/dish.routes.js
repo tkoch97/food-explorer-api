@@ -9,9 +9,9 @@ const dishRoutes = Router();
 const upload = multer(uploadConfig.MULTER);
 const dishControllers = new DishControllers();
 
-dishRoutes.post("/", ensureAuthenticated, verifyUserAuthorization, upload.single("dishImg"), dishControllers.createNewDish);
-dishRoutes.put("/:id", ensureAuthenticated, verifyUserAuthorization, upload.single("dishImg"), dishControllers.editDish);
-dishRoutes.delete("/:id", ensureAuthenticated, verifyUserAuthorization, dishControllers.deleteDish);
+dishRoutes.post("/", ensureAuthenticated, verifyUserAuthorization("admin"), upload.single("dishImg"), dishControllers.createNewDish);
+dishRoutes.put("/:id", ensureAuthenticated, verifyUserAuthorization("admin"), upload.single("dishImg"), dishControllers.editDish);
+dishRoutes.delete("/:id", ensureAuthenticated, verifyUserAuthorization("admin"), dishControllers.deleteDish);
 dishRoutes.get("/:id", ensureAuthenticated, dishControllers.showDish);
 dishRoutes.get("/", ensureAuthenticated, dishControllers.listDishes);
 
