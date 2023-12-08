@@ -1,13 +1,18 @@
 const AppError = require('../utils/AppError');
 
-function verifyUserAuthorization(request, response, next) {
-  const isAdmin = request.user.role;
+function verifyUserAuthorization(roleToVerify) {
+  
+  return (req, resp, next) => {
 
-  if(isAdmin === 1) {
-    next();
-  } else {
-    throw new AppError("Acesso negado. Apenas administradores.", 403);
+    const {role} = req.user;
+
+    if(!roleToVerify.includes(role)) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    return next();
   }
+
   
 }
 
