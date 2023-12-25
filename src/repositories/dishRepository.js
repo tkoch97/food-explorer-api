@@ -93,7 +93,12 @@ class DishRepository {
   }
 
   async deleteDish(id) {
+    const dishData = await knex('dishes').where('id', id);
+    const dishImg = dishData[0].image;
+
     await knex('dishes').where('id', id).del();
+
+    this.diskStorage.deleteExistingFileInUploads(dishImg);
   }
 
   async listDishes(dishFilters) {
