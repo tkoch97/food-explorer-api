@@ -5,6 +5,7 @@ const cors = require('cors');
 const routes = require('./routes');
 const AppError = require('./utils/AppError');
 const cookieParser = require("cookie-parser");
+const uploadConfig = require('./configs/upload');
 
 const app = express();
 app.use(cookieParser());
@@ -13,6 +14,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use('/files', express.static(uploadConfig.UPLOADS_FOLDER));
 app.use(routes);
 
 app.use((error, request, response, next) => {
