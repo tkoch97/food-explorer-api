@@ -105,17 +105,17 @@ class DishRepository {
     const { nameOrIngredient } = dishFilters;
 
     if(nameOrIngredient === '' || !nameOrIngredient) {
-      const listAllDishes = await knex("dishes").select('image', 'name', 'description', 'price').orderBy("name");
+      const listAllDishes = await knex("dishes").select('id', 'image', 'name', 'description', 'price').orderBy("name");
 
       return listAllDishes;
     }else{
       // função para possibilitar a filtragem de pratos tanto por nome quanto por algum ingrediente.
       
       const listedDishes = await knex('dishes')
-      .select('image', 'name', 'description', 'price')
+      .select('id', 'image', 'name', 'description', 'price')
       .where('name', 'like', `%${nameOrIngredient}%`)
       .orWhereExists(function() {
-        this.select('image', 'name', 'description', 'price')
+        this.select('id', 'image', 'name', 'description', 'price')
             .from('ingredients')
             .whereRaw('dishes.id = ingredients.dish_id')
             .andWhere('ingredients.name', 'like', `%${nameOrIngredient}%`);
