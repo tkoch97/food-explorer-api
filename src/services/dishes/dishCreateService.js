@@ -23,7 +23,7 @@ class DishCreateService {
     } else if (requestData.name === "") {
       await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
       throw new AppError("Por favor, dê um nome ao prato");
-    } else if (requestData.price === 0) {
+    } else if (requestData.price === 0 | "") {
       await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
       throw new AppError("Por favor, atribua um valor ao prato.");
     }
