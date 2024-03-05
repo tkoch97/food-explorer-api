@@ -1,10 +1,12 @@
 const knex = require("../database");
 const DiskStorage = require("../providers/diskStorage");
+const Conversions = require("../utils/conversions");
 const AppError = require("../utils/AppError");
 
 class DishRepository {
   constructor() {
     this.diskStorage = new DiskStorage();
+    this.conversions = new Conversions();
   }
 
   _generateIngredientsInsert(ingredients, dish_id) {
@@ -27,12 +29,14 @@ class DishRepository {
 
     // Passar a imagem de "tmp" para "uploads"
     const saveDishImgInUploads = await this.diskStorage.transferDishImgForUploads(dishImgFilename)
+    
+    const transformedPrice = await this.conversions.TransformPriceIntoNumber(dishText.price);
 
     const [ dish_id ] = await knex('dishes').insert({
       name: dishText.name,
       description: dishText.description,
       category: dishText.category,
-      price: dishText.price,
+      price: transformedPrice,
       image: saveDishImgInUploads
     });
 
@@ -57,12 +61,13 @@ class DishRepository {
     const dishText = dishData.body.text ? JSON.parse(dishData.body.text) : atuallDish;
     const dishImgFilename = dishData.file ? dishData.file.filename : null;
     const oldIngredients = await knex("ingredients").where('dish_id', id).orderBy("name");
+    const transformedPrice = await this.conversions.TransformPriceIntoNumber(dishText.price);
 
     const updateDishData = {
       name: dishText.name,
       description: dishText.description,
       category: dishText.category,
-      price: dishText.price,
+      price: transformedPrice,
       updated_at: knex.fn.now()
     }
 
