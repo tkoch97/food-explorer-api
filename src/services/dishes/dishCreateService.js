@@ -11,21 +11,20 @@ class DishCreateService {
     const requestData = JSON.parse(dishData.body.text);
     const checkDishExists = await this.dishRepository.findExistingName(requestData.name);
 
-    if(checkDishExists) {
+    if (checkDishExists) {
       await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
       throw new AppError("Este prato já está cadastrado.");
-    } else if (requestData.ingredients.length === 0) {
+    }
+
+    if (requestData.ingredients.length === 0) {
       await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
       throw new AppError("Por favor, insira os ingredientes do prato.");
-    } else if (requestData.description === "") {
+    }
+
+    if (requestData.description === "" || requestData.name === "" || 
+    requestData.price === "" || requestData.category === "") {
       await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
-      throw new AppError("Por favor, insira uma descrição para o prato");
-    } else if (requestData.name === "") {
-      await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
-      throw new AppError("Por favor, dê um nome ao prato");
-    } else if (requestData.price === 0 | "") {
-      await diskStorage.deleteExistingFileInTmp(dishData.file.filename);
-      throw new AppError("Por favor, atribua um valor ao prato.");
+      throw new AppError("Por favor, preencha todos os campos do prato.");
     }
 
     const dishCreated = await this.dishRepository.createNewDish(dishData)
