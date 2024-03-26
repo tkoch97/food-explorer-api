@@ -58,21 +58,22 @@ class DishRepository {
   
   async insertNewDataInDishAndIngredients(dishData, id) {
     const atuallDish = await knex("dishes").where('id', id).first();
-    const dishText = dishData.body.text ? JSON.parse(dishData.body.text) : atuallDish;
+    const newDishText = JSON.parse(dishData.body.text);
     const dishImgFilename = dishData.file ? dishData.file.filename : null;
     const oldIngredients = await knex("ingredients").where('dish_id', id).orderBy("name");
-    const transformedPrice = await this.conversions.TransformPriceIntoNumber(dishText.price);
+    const transformedPrice = await this.conversions.TransformPriceIntoNumber(newDishText.price);
 
     const updateDishData = {
-      name: dishText.name,
-      description: dishText.description,
-      category: dishText.category,
-      price: transformedPrice,
+      name: newDishText.name ? newDishText.name : atuallDish.name,
+      description: newDishText.description ? newDishText.description : atuallDish.description,
+      category: newDishText.category ? newDishText.category : atuallDish.category,
+      price: transformedPrice ? transformedPrice : atuallDish.price,
       updated_at: knex.fn.now()
     }
 
     // Deletar imagem existente no banco
     if(dishImgFilename && atuallDish.image) {
+      console.log("imaem atual =>", atuallDish.image)
       await this.diskStorage.deleteExistingFileInUploads(atuallDish.image);
       // Passar a imagem nova de "tmp" para "uploads"
       const saveDishImgInUploads = await this.diskStorage.transferDishImgForUploads(dishImgFilename)
@@ -86,8 +87,8 @@ class DishRepository {
 
     await knex('dishes').where('id', id).update(updateDishData);
 
-    const ingredientsInsert = dishText.ingredients ? 
-    this._generateIngredientsInsert(dishText.ingredients, id) : 
+    const ingredientsInsert = newDishText.ingredients ? 
+    this._generateIngredientsInsert(newDishText.ingredients, id) : 
     oldIngredients;
 
     await knex('ingredients').where('dish_id', id).del()
