@@ -73,7 +73,7 @@ class DishRepository {
 
     // Deletar imagem existente no banco
     if(dishImgFilename && atuallDish.image) {
-      console.log("imaem atual =>", atuallDish.image)
+
       await this.diskStorage.deleteExistingFileInUploads(atuallDish.image);
       // Passar a imagem nova de "tmp" para "uploads"
       const saveDishImgInUploads = await this.diskStorage.transferDishImgForUploads(dishImgFilename)
