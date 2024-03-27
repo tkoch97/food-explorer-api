@@ -1,5 +1,3 @@
-const AppError = require("./AppError");
-
 class Conversions {
 
   async TransformPriceIntoNumber(value) {
@@ -10,9 +8,9 @@ class Conversions {
 
     if (!isNaN(TransformIntoNumericValue)) {
         return TransformIntoNumericValue;
-    } else {
-        throw new AppError("Falha ao enviar solicitação, por favor, tente mais tarde.");
     }
+
+    return null
   }
 }
 
