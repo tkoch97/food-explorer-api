@@ -111,7 +111,7 @@ class DishRepository {
     const { nameOrIngredient } = dishFilters;
 
     if(nameOrIngredient === '' || !nameOrIngredient) {
-      const listAllDishes = await knex("dishes").select('id', 'image', 'name', 'description', 'price').orderBy("name");
+      const listAllDishes = await knex("dishes").select('id', 'image', 'name', 'description', 'price', 'category').orderBy("name");
 
       return listAllDishes;
     }else{
