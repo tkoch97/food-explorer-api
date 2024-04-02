@@ -118,7 +118,7 @@ class DishRepository {
       // função para possibilitar a filtragem de pratos tanto por nome quanto por algum ingrediente.
       
       const listedDishes = await knex('dishes')
-      .select('id', 'image', 'name', 'description', 'price')
+      .select('id', 'image', 'name', 'description', 'price', 'category')
       .where('name', 'like', `%${nameOrIngredient}%`)
       .orWhereExists(function() {
         this.select('id', 'image', 'name', 'description', 'price')
